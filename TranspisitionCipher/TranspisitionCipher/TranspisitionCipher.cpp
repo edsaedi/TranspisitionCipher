@@ -97,16 +97,56 @@ std::string Decryption(std::string ciphertext, int key)
 	std::string plaintext;
 	const int rows = key;
 	const int columns = std::ceil(ciphertext.size() / (double)key);
-	int remainder = ciphertext.size() % key;
+	int remainder = rows - (ciphertext.size() % key);
 	std::vector<std::vector<char>> table;
+
+	/*for (size_t col = 0; col < columns; col++)
+	{
+		table.push_back(std::vector<char>());
+		for (size_t row = 0; row < rows; row++)
+		{
+			table[row].push_back('&');
+			if (col == (columns - 1) && row < (remainder))
+			{
+				table[row][col] = '*';
+			}
+		}
+	}*/
+
+	for (size_t row = 0; row < rows; row++)
+	{
+		table.push_back(std::vector<char>());
+		for (size_t col = 0; col < columns; col++)
+		{
+			table[row].push_back('\0');
+		}
+	}
+
+	for (size_t i = 1; i <= remainder; i++)
+	{
+		table[rows - i][columns - 1] = '*';
+	}
+
+	int count{};
+	for (size_t row = 0; row < rows; row++)
+	{
+		for (size_t col = 0; col < columns; col++)
+		{
+			if (table[row][col] != '*')
+			{
+				table[row][col] = ciphertext[count];
+				count++;
+			}
+		}
+	}
 
 	for (size_t col = 0; col < columns; col++)
 	{
 		for (size_t row = 0; row < rows; row++)
 		{
-			table[row].push_back('');
-			if ((columns - 1) == col && row < (rows - remainder))
+			if (table[row][col] != '*')
 			{
+				plaintext += table[row][col];
 
 			}
 		}
@@ -118,8 +158,10 @@ std::string Decryption(std::string ciphertext, int key)
 int main()
 {
 	//std::vector<std::vector<char>> table;
-	auto encrypted = Encryption("Common sense is not so common.", 8);
+	int key = 5;
+	auto encrypted = Encryption("I believe it works.", key);
 	std::cout << encrypted << "\n";
-	std::cout << Decryption(encrypted, 8);
+
+	std::cout << Decryption(encrypted, key);
 	//table.
 }
